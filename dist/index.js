@@ -31683,7 +31683,7 @@ const gitPullOrClone = __nccwpck_require__(2550);
 const { execSync } = __nccwpck_require__(2081);
 const { stdout, exit } = __nccwpck_require__(7282);
 const repositoryUrl = "https://github.com/pyenv/pyenv.git";
-const destinationPath = __nccwpck_require__.ab + "pyenv";
+const destinationPath = path.resolve("pyenv");
 const python_version = core.getInput('python-version');
 const setup_poetry = core.getInput('setup-poetry');
 
@@ -31698,7 +31698,7 @@ if (semver.valid(python_version) === null) {
 
 core.startGroup("Setup PyEnv");
 
-gitPullOrClone(repositoryUrl, __nccwpck_require__.ab + "pyenv", (error) => {
+gitPullOrClone(repositoryUrl, destinationPath, (error) => {
     if (error) core.setFailed(error.message);
 
     const pyenvBinary = path.join(destinationPath, "bin", "pyenv");
@@ -31736,15 +31736,15 @@ gitPullOrClone(repositoryUrl, __nccwpck_require__.ab + "pyenv", (error) => {
     if (setup_poetry !== '') {
         core.startGroup("Setup Poetry");
         pythonPipExe = path.join(pythonBinDir, "pip");
-        exec(
-            `${pythonPipExe} install poetry`,
-            (error, _, __) => {
-                if (error) core.setFailed(error.message);
-                core.info("📖 Poetry setup completed successfully.");
-                core.addPath(pythonBinDir);
-                core.endGroup();
-            }
-        );
+        try {
+            execSync(`${pythonPipExe} install poetry`, execOptions);
+        } catch (error) {
+            core.setFailed(`❌ Failed to install Poetry: ${error.message}`);        
+        }
+
+        core.info("📖 Poetry setup completed successfully.");
+        core.addPath(pythonBinDir);
+        core.endGroup();
     };
     core.startGroup("Updating environment");
     core.info("🛫 Exporting environment variables");

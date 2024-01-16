@@ -60,15 +60,15 @@ gitPullOrClone(repositoryUrl, destinationPath, (error) => {
     if (setup_poetry !== '') {
         core.startGroup("Setup Poetry");
         pythonPipExe = path.join(pythonBinDir, "pip");
-        exec(
-            `${pythonPipExe} install poetry`,
-            (error, _, __) => {
-                if (error) core.setFailed(error.message);
-                core.info("📖 Poetry setup completed successfully.");
-                core.addPath(pythonBinDir);
-                core.endGroup();
-            }
-        );
+        try {
+            execSync(`${pythonPipExe} install poetry`, execOptions);
+        } catch (error) {
+            core.setFailed(`❌ Failed to install Poetry: ${error.message}`);        
+        }
+
+        core.info("📖 Poetry setup completed successfully.");
+        core.addPath(pythonBinDir);
+        core.endGroup();
     };
     core.startGroup("Updating environment");
     core.info("🛫 Exporting environment variables");
