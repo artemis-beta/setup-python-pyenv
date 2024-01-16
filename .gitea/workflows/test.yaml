@@ -1,0 +1,12 @@
+name: python3.12
+on: [push]
+jobs:
+    build:
+      name: Ubuntu (Python3.12)
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - uses: http://192.168.0.9:3000/actions/setup-python@v1
+          with:
+            python-version: 3.12
+            setup-poetry: true
