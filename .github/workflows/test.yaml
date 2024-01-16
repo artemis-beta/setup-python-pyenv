@@ -6,7 +6,7 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
-        - uses: artemis-beta/setup-python@v1
+        - uses: artemis-beta/setup-python-pyenv@v1
           with:
             python-version: 3.12
             setup-poetry: true
