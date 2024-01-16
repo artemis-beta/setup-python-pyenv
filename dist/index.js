@@ -31683,7 +31683,7 @@ const gitPullOrClone = __nccwpck_require__(2550);
 const { execSync } = __nccwpck_require__(2081);
 const { stdout, exit } = __nccwpck_require__(7282);
 const repositoryUrl = "https://github.com/pyenv/pyenv.git";
-const destinationPath = path.resolve("pyenv");
+const destinationPath = path.resolve(".pyenv");
 const python_version = core.getInput('python-version');
 const setup_poetry = core.getInput('setup-poetry');
 
@@ -31739,7 +31739,8 @@ gitPullOrClone(repositoryUrl, destinationPath, (error) => {
         try {
             execSync(`${pythonPipExe} install poetry`, execOptions);
         } catch (error) {
-            core.setFailed(`❌ Failed to install Poetry: ${error.message}`);        
+            core.setFailed(`❌ Failed to install Poetry: ${error.message}`);
+            exit(1);     
         }
 
         core.info("📖 Poetry setup completed successfully.");

@@ -7,7 +7,7 @@ const gitPullOrClone = require('git-pull-or-clone');
 const { execSync } = require('child_process');
 const { stdout, exit } = require('process');
 const repositoryUrl = "https://github.com/pyenv/pyenv.git";
-const destinationPath = path.resolve("pyenv");
+const destinationPath = path.resolve(".pyenv");
 const python_version = core.getInput('python-version');
 const setup_poetry = core.getInput('setup-poetry');
 
@@ -63,7 +63,8 @@ gitPullOrClone(repositoryUrl, destinationPath, (error) => {
         try {
             execSync(`${pythonPipExe} install poetry`, execOptions);
         } catch (error) {
-            core.setFailed(`❌ Failed to install Poetry: ${error.message}`);        
+            core.setFailed(`❌ Failed to install Poetry: ${error.message}`);
+            exit(1);     
         }
 
         core.info("📖 Poetry setup completed successfully.");
