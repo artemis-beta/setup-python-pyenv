@@ -1,0 +1,17 @@
+{
+  "name": "setup-python",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kristian Zarebski <krizar312@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@actions/core": "^1.10.1",
+    "@actions/github": "^6.0.0",
+    "exeq": "^3.0.0",
+    "simple-git": "^3.22.0"
+  }
+}

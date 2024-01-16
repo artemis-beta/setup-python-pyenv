@@ -1,0 +1,16 @@
+name: Setup Python
+description: Sets up Python version using Pyenv
+author: Kristian Zarebski
+
+inputs:
+  python-version:
+    description: Version of Python to install
+    required: true
+  setup-poetry:
+    description: Setup Python Poetry
+    required: false
+    default: ""
+
+runs:
+  using: node16
+  main: dist/index.js
