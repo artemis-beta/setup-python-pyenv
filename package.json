@@ -4,13 +4,13 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": ""
   },
   "author": "Kristian Zarebski <krizar312@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "@actions/core": "^1.10.1",
     "exeq": "^3.0.0",
-    "simple-git": "^3.22.0"
+    "git-pull-or-clone": "^2.0.2"
   }
 }
