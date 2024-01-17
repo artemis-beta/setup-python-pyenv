@@ -4,7 +4,7 @@ const fs = require('fs');
 const os = require('os');
 const semver = require('semver');
 const path = require('path');
-const gitPullOrClone = require('git-pull-or-clone');
+var gitClone = require('git-clone-sync');
 const { execSync } = require('child_process');
 const { exit } = require('process');
 const repositoryUrl = "https://github.com/pyenv/pyenv.git";
@@ -48,12 +48,12 @@ if (operating_system === 'win32') {
     }
     pyenvBinary = path.join(destinationPath, "pyenv-win", "bin", "pyenv.bat");
 } else {
-    gitPullOrClone(repositoryUrl, destinationPath, (error) => {
-        if (error) {
-            core.setFailed(error.message);
-            exit(1);
-        }
-    });
+    try {
+        gitClone(repositoryUrl, destinationPath, shallow=true, sync=true);
+    } catch (error) {
+        core.setFailed(`❌ Cloning of pyenv repository failed: ${error.message}`);
+        exit(1);
+    }
 }
 
 if (!fs.existsSync(pyenvBinary, fs.constants.F_OK)) {
