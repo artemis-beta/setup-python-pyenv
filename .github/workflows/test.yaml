@@ -9,4 +9,4 @@ jobs:
         - uses: artemis-beta/setup-python-pyenv@v0.1
           with:
             python-version: 3.12.1
-            setup-poetry: true
+            use-poetry: true

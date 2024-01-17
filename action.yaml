@@ -6,8 +6,20 @@ inputs:
   python-version:
     description: Version of Python to install
     required: true
-  setup-poetry:
+  use-poetry:
     description: Setup Python Poetry
+    required: false
+    default: ""
+  setup-venv:
+    description: Whether to setup a virtual environment
+    required: false
+    default: "false"
+  requirements:
+    description: Optional requirements file to install
+    required: false
+    default: ""
+  poetry-args:
+    description: Additional arguments to poetry install command
     required: false
     default: ""
 

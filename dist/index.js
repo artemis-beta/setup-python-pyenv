@@ -31686,13 +31686,17 @@ const { exit } = __nccwpck_require__(7282);
 const repositoryUrl = "https://github.com/pyenv/pyenv.git";
 const destinationPath = path.resolve(".pyenv");
 let python_version = core.getInput('python-version');
-let setup_poetry = core.getInput('setup-poetry');
+let setup_poetry = core.getInput('use-poetry') == 'true';
+let setup_venv = core.getInput('setup-venv') == 'true';
+let poetry_args = core.getInput('poetry-args');
 const operating_system = os.platform();
 const flag = process.argv[2];
 
 if (flag === "--test") {
     python_version = '3.10.5';
     setup_poetry = true;
+    setup_venv = true;
+    poetry_args = "";
 }
 
 var execOptions = {
@@ -31703,6 +31707,8 @@ if (semver.valid(python_version) === null) {
     core.setFailed(`⛔ Invalid semantic version '${python_version}'`);
     exit(1);
 }
+
+pyenvBinary = path.join(destinationPath, "bin", "pyenv");
 
 core.startGroup("Setup PyEnv");
 if (operating_system === 'win32') {
@@ -31716,11 +31722,13 @@ if (operating_system === 'win32') {
         core.setFailed(`❌ Failed to install pyenv-win: ${error}`);
         exit(1);
     }
-    var pyenvBinary = path.join(destinationPath, "pyenv-win", "bin", "pyenv.bat");
+    pyenvBinary = path.join(destinationPath, "pyenv-win", "bin", "pyenv.bat");
 } else {
     gitPullOrClone(repositoryUrl, destinationPath, (error) => {
-        if (error) core.setFailed(error.message);
-        pyenvBinary = path.join(destinationPath, "bin", "pyenv");
+        if (error) {
+            core.setFailed(error.message);
+            exit(1);
+        }
     });
 }
 
@@ -31746,6 +31754,7 @@ try {
 }
 
 try {
+    core.info(`⬇️  Installing Python ${python_version}`)
     execSync(`${pyenvBinary} install ${python_version}`, execOptions);
 } catch (error) {
     core.setFailed(`❌ Python install failed: ${error.message}`);
@@ -31755,12 +31764,12 @@ try {
 core.info(`🐍 Python ${python_version} was installed successfully`);
 core.endGroup();
 
+pythonBinDir =  core.toPlatformPath(`${destinationPath}/versions/${python_version}/bin`);
+pythonPipExe = path.join(pythonBinDir, "pip");
+
 if (operating_system === 'win32') {
     pythonBinDir = core.toPlatformPath(`${destinationPath}/pyenv-win/versions/${python_version}/Scripts`);
     pythonPipExe = path.join(pythonBinDir, "pip.exe");
-} else {
-    pythonBinDir =  core.toPlatformPath(`${destinationPath}/versions/${python_version}/bin`);
-    pythonPipExe = path.join(pythonBinDir, "pip");
 }
 
 if (setup_poetry !== '') {
@@ -31785,10 +31794,41 @@ if (setup_poetry !== '') {
     }
 
     let matches = stdout.match("poetry==(.+)");
+    let poetryBinary = path.join(pythonBinDir, "poetry");
 
     core.info(`📖 Poetry ${matches[0]} setup completed successfully.`);
     core.endGroup();
-};
+    if (setup_venv) {
+        core.startGroup("Setup Virtual Environment");
+        core.debug("🔧 Setting virtual environment path to project directory.");
+        try {
+            execSync(`${poetryBinary} config virtualenvs.in-project`, execOptions);
+        } catch (error) {
+            core.setFailed(`❌ Failed to configure Poetry: ${error.message}`);
+            exit(1);     
+        }
+        core.info("🌍 Installing Poetry project to virtual environment.");
+        try {
+            execSync(`${poetryBinary} install ${poetry_args}`, execOptions);
+        } catch (error) {
+            core.setFailed(`❌ Failed to install project using Poetry: ${error.message}`);
+            exit(1);     
+        }
+        core.endGroup();
+    }
+} else {
+    if (setup_venv) {
+        core.startGroup("Setup Virtual Environment");
+        core.info("🌍 Creating virtual environment using 'venv'.");
+        try {
+            execSync(`${pythonPipExe} -m venv .venv`, execOptions);
+        } catch (error) {
+            core.setFailed(`❌ Failed to initialise virtual environment: ${error.message}`);
+            exit(1);     
+        }
+        core.endGroup();
+    }
+}
 core.startGroup("Updating environment");
 core.info("🛫 Exporting environment variables");
 core.addPath(pythonBinDir);
